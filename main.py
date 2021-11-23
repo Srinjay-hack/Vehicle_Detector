@@ -138,8 +138,7 @@ while(cap.isOpened()):
                 cv2.circle(frame,(cx,cy),5,(0,0,255),-1)
                 img=cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
 
-        for i in cars:
-            cv2.putText(frame, str(i.getId()), (i.getX(), i.getY()), font, 0.3, i.getRGB(), 1, cv2.LINE_AA)
+        
 
 
 
@@ -163,7 +162,6 @@ while(cap.isOpened()):
         break
 
 cap.release()
-
 cv2.destroyAllWindows()
 
 

@@ -3,12 +3,12 @@ import time
 
 
 class Car:
-    tracks=[]
+    lane=[]
     def __init__(self,a,x,y,age):
         self.a=a
         self.x=x
         self.y=y
-        self.tracks=[]
+        self.lane=[]
         self.R=randint(0,255)
         self.G=randint(0,255)
         self.B=randint(0,255)
@@ -20,8 +20,9 @@ class Car:
 
     def getRGB(self):  #For the RGB colour
         return (self.R,self.G,self.B)
+
     def getTracks(self):
-        return self.tracks
+        return self.lane
 
     def getId(self): #For the ID
         return self.a
@@ -40,7 +41,7 @@ class Car:
 
     def updateCoords(self, xn, yn):
         self.age = 0
-        self.tracks.append([self.x, self.y])
+        self.lane.append([self.x, self.y])
         self.x = xn
         self.y = yn
 
@@ -51,9 +52,9 @@ class Car:
         return self.isdone
 
     def going_UP(self, mid_start, mid_end):
-        if len(self.tracks)>=2:
+        if len(self.lane)>=2:
             if self.state=='0':
-                if self.tracks[-1][1]<mid_end and self.tracks[-2][1]>=mid_end:
+                if self.lane[-1][1]<mid_end and self.lane[-2][1]>=mid_end:
                     state='1'
                     self.dir='up'
                     return True
@@ -66,9 +67,9 @@ class Car:
            
            
     def going_DOWN(self,mid_start,mid_end):
-        if len(self.tracks)>=2:
+        if len(self.lane)>=2:
             if self.state=='0':
-                if self.tracks[-1][1]>mid_start and self.tracks[-2][1]<=mid_start:
+                if self.lane[-1][1]>mid_start and self.lane[-2][1]<=mid_start:
                     start='1'
                     self.dir='down'
                     return True
@@ -92,7 +93,7 @@ class MultiCar:
         self.cars=cars
         self.x=xi
         self.y=yi
-        self.tracks=[]
+        self.lane=[]
         self.R=randint(0,255)
         self.G=randint(0,255)
         self.B=randint(0,255)

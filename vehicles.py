@@ -4,18 +4,18 @@ import time
 
 class Car:
     tracks=[]
-    def __init__(self,i,xi,yi,max_age):
-        self.i=i
-        self.x=xi
-        self.y=yi
+    def __init__(self,a,x,y,age):
+        self.a=a
+        self.x=x
+        self.y=y
         self.tracks=[]
         self.R=randint(0,255)
         self.G=randint(0,255)
         self.B=randint(0,255)
-        self.done=False
+        self.isdone=False
         self.state='0'
         self.age=0
-        self.max_age=max_age
+        self.max_age=age
         self.dir=None
 
     def getRGB(self):  #For the RGB colour
@@ -24,7 +24,7 @@ class Car:
         return self.tracks
 
     def getId(self): #For the ID
-        return self.i
+        return self.a
 
     def getState(self):
         return self.state
@@ -45,10 +45,10 @@ class Car:
         self.y = yn
 
     def setDone(self):
-        self.done = True
+        self.isdone = True
 
     def timedOut(self):
-        return self.done
+        return self.isdone
 
     def going_UP(self, mid_start, mid_end):
         if len(self.tracks)>=2:

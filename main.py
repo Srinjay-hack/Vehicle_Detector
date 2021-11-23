@@ -11,47 +11,51 @@ cap=cv2.VideoCapture("video.mp4")
 
 #Get width and height of video
 
-w=cap.get(3)
-h=cap.get(4)
-frameArea=h*w
-areaTH=frameArea/400
+width=cap.get(3)
+height=cap.get(4)
+frameArea=height*width
+area_frame=frameArea/400
 
 #Lines
-line_up=int(3*(h/5))
-line_down=int(3*(h/5))
+line=int(3*(height/5))
 
-up_limit=int(1*(h/4))
-down_limit=int(4*(h/5))
+up_border=int(1*(height/4))
+down_border=int(4*(height/5))
 
-print("Red line y:",str(line_down))
-print("Blue line y:",str(line_up))
+print("Red line y:",str(line))
+print("Blue line y:",str(line))
+
 line_down_color=(255,0,0)
 line_up_color=(255,0,255)
-pt1 =  [0, line_down]
-pt2 =  [w, line_down]
+
+pt1 =  [0, line]
+pt2 =  [width, line]
+pt3 =  [0, line]
+pt4 =  [width, line]
+pt5 =  [0, up_border]
+pt6 =  [width, up_border]
+pt7 =  [0, down_border]
+pt8 =  [width, down_border]
+
 pts_L1 = np.array([pt1,pt2], np.int32)
 pts_L1 = pts_L1.reshape((-1,1,2))
-pt3 =  [0, line_up]
-pt4 =  [w, line_up]
+
 pts_L2 = np.array([pt3,pt4], np.int32)
 pts_L2 = pts_L2.reshape((-1,1,2))
 
-pt5 =  [0, up_limit]
-pt6 =  [w, up_limit]
 pts_L3 = np.array([pt5,pt6], np.int32)
 pts_L3 = pts_L3.reshape((-1,1,2))
-pt7 =  [0, down_limit]
-pt8 =  [w, down_limit]
+
 pts_L4 = np.array([pt7,pt8], np.int32)
 pts_L4 = pts_L4.reshape((-1,1,2))
 
 #Background Subtractor
-fgbg=cv2.createBackgroundSubtractorMOG2(detectShadows=True)
+bgSub=cv2.createBackgroundSubtractorMOG2(detectShadows=True)
 
 #Kernals
-kernalOp = np.ones((3,3),np.uint8)
-kernalOp2 = np.ones((5,5),np.uint8)
-kernalCl = np.ones((11,11),np.uint)
+kernal1 = np.ones((3,3),np.uint8)
+kernal2 = np.ones((5,5),np.uint8)
+kernal3 = np.ones((11,11),np.uint)
 
 
 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -61,25 +65,28 @@ pid = 1
 
 
 while(cap.isOpened()):
-    ret,frame=cap.read()
+    rest,frame=cap.read()
     for i in cars:
         i.age_one()
-    fgmask=fgbg.apply(frame)
-    fgmask2=fgbg.apply(frame)
+    fgmask=bgSub.apply(frame)
+    fgmask2=bgSub.apply(frame)
 
 
-    if ret==True:
+    if rest==True:
 
         #Binarization
-        ret,imBin=cv2.threshold(fgmask,200,255,cv2.THRESH_BINARY)
-        ret,imBin2=cv2.threshold(fgmask2,200,255,cv2.THRESH_BINARY)
+        rest,imBin=cv2.threshold(fgmask,200,255,cv2.THRESH_BINARY)
+        rest,imBin2=cv2.threshold(fgmask2,200,255,cv2.THRESH_BINARY)
+
+
         #OPening i.e First Erode the dilate
-        mask=cv2.morphologyEx(imBin,cv2.MORPH_OPEN,kernalOp)
-        mask2=cv2.morphologyEx(imBin2,cv2.MORPH_CLOSE,kernalOp)
+        mask=cv2.morphologyEx(imBin,cv2.MORPH_OPEN,kernal1)
+        mask2=cv2.morphologyEx(imBin2,cv2.MORPH_CLOSE,kernal1)
+
 
         #Closing i.e First Dilate then Erode
-        mask=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,kernalCl)
-        mask2=cv2.morphologyEx(mask2,cv2.MORPH_CLOSE,kernalCl)
+        mask=cv2.morphologyEx(mask,cv2.MORPH_CLOSE,kernal3)
+        mask2=cv2.morphologyEx(mask2,cv2.MORPH_CLOSE,kernal3)
 
 
         #Find Contours
@@ -87,32 +94,33 @@ while(cap.isOpened()):
         for cnt in countours0:
             area=cv2.contourArea(cnt)
             print(area)
-            if area>areaTH:
-                ####Tracking######
+            if area>area_frame:
+                ####Tracking#########
+                ## Speed tracking with help of frames ######
                 m=cv2.moments(cnt)
                 cx=int(m['m10']/m['m00'])
                 cy=int(m['m01']/m['m00'])
                 x,y,w,h=cv2.boundingRect(cnt)
 
                 new=True
-                if cy in range(up_limit,down_limit):
+                if cy in range(up_border,down_border):
                     for i in cars:
                         if abs(x - i.getX()) <= w and abs(y - i.getY()) <= h:
                             new = False
                             i.updateCoords(cx, cy)
 
-                            if i.going_UP(line_down,line_up)==True:
+                            if i.going_UP(line,line)==True:
                                 cnt_up+=1
                                 print("ID:",i.getId(),'crossed going up at', time.strftime("%c"))
-                            elif i.going_DOWN(line_down,line_up)==True:
+                            elif i.going_DOWN(line,line)==True:
                                 cnt_down+=1
                                 print("ID:", i.getId(), 'crossed going up at', time.strftime("%c"))
                             break
                             
                         if i.getState()=='1':
-                            if i.getDir()=='down'and i.getY()>down_limit:
+                            if i.getDir()=='down'and i.getY()>down_border:
                                 i.setDone()
-                            elif i.getDir()=='up'and i.getY()<up_limit:
+                            elif i.getDir()=='up'and i.getY()<up_border:
                                 i.setDone()
                                 
                         if i.timedOut():
@@ -155,6 +163,7 @@ while(cap.isOpened()):
         break
 
 cap.release()
+
 cv2.destroyAllWindows()
 
 

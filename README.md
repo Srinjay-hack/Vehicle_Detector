@@ -1,4 +1,4 @@
-# Vehicle_Detector
+# Vehicle_Detector and counting
 This is a github project done during the Fall of Semester
 - Its about detecting Vehicles using Open_CV.
 - Vehicle detection and statistics in highway monitoring video scenes are of considerable significance to intelligent traffic management and control of the highway .
